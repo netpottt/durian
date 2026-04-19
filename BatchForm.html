@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Durian Batch Entry</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green:   #1a5c2a;
+    --lime:    #7db83a;
+    --lime-lt: #d4edaa;
+    --gold:    #e8a020;
+    --bg:      #f5f0e8;
+    --card:    #ffffff;
+    --text:    #1a1a1a;
+    --muted:   #6b7a5a;
+    --border:  #c8d4b0;
+    --error:   #c0392b;
+    --radius:  12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .logo-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* Active batch banner */
+  #active-banner {
+    width: 100%;
+    max-width: 480px;
+    background: var(--lime-lt);
+    border: 1.5px solid var(--lime);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  #active-banner .banner-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+
+  #active-banner .banner-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  #active-banner .banner-meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  #close-batch-btn {
+    margin-top: 10px;
+    background: none;
+    border: 1.5px solid var(--green);
+    color: var(--green);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #close-batch-btn:hover { background: var(--green); color: #fff; }
+
+  /* Card */
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 7px;
+  }
+
+  label .req { color: var(--gold); margin-left: 2px; }
+
+  input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+    background: #fafaf6;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--lime);
+    background: #fff;
+  }
+
+  input.error { border-color: var(--error); }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 5px;
+    display: none;
+  }
+
+  .field-error.show { display: block; }
+
+  /* Submit */
+  #submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.3px;
+  }
+
+  #submit-btn:hover   { background: #14491f; }
+  #submit-btn:active  { transform: scale(0.98); }
+  #submit-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+  /* Status message */
+  #status-msg {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    display: none;
+    text-align: center;
+  }
+
+  #status-msg.success {
+    background: var(--lime-lt);
+    border: 1.5px solid var(--lime);
+    color: var(--green);
+    display: block;
+  }
+
+  #status-msg.fail {
+    background: #fdecea;
+    border: 1.5px solid var(--error);
+    color: var(--error);
+    display: block;
+  }
+
+  .batch-id-display {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-top: 6px;
+    color: var(--green);
+    opacity: 0.8;
+  }
+
+  /* Today's batches list */
+  #batches-section {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 28px;
+  }
+
+  #batches-section h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+
+  .batch-row {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .batch-row-left .row-farm { font-size: 16px; font-weight: 700; color: var(--text); }
+  .batch-row-left .row-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .status-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .status-pill.open   { background: var(--lime-lt); color: var(--green); }
+  .status-pill.closed { background: #eee; color: #888; }
+
+  .no-batches { font-size: 14px; color: var(--muted); text-align: center; padding: 20px 0; }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-line">
+    <div class="logo-icon">🌵</div>
+    <h1>DURIAN TRACK</h1>
+  </div>
+  <p class="subtitle">Packing House Batch System</p>
+</header>
+
+<!-- Active batch banner -->
+<div id="active-banner">
+  <div class="banner-label">⚡ Active Batch</div>
+  <div class="banner-name" id="banner-farm">—</div>
+  <div class="banner-meta" id="banner-meta">—</div>
+  <button id="close-batch-btn" onclick="closeBatch()">Close This Batch</button>
+</div>
+
+<!-- New batch form -->
+<div class="card">
+  <div class="card-title">📋 New Batch — New Truck</div>
+
+  <div class="field">
+    <label>Farm name <span class="req">*</span></label>
+    <input type="text" id="farm_name" placeholder="e.g. สวนทุเรียนชัย"/>
+    <div class="field-error" id="err-farm">Farm name is required</div>
+  </div>
+
+  <div class="field">
+    <label>Farmer name <span class="req">*</span></label>
+    <input type="text" id="farmer_name" placeholder="e.g. สมชาย มีทรัพย์"/>
+    <div class="field-error" id="err-farmer">Farmer name is required</div>
+  </div>
+
+  <div class="field">
+    <label>GAP number</label>
+    <input type="text" id="gap_number" placeholder="e.g. GAP-12345"/>
+  </div>
+
+  <div class="field">
+    <label>Vehicle registration</label>
+    <input type="text" id="vehicle_reg" placeholder="e.g. กข 1234 ระยอง"/>
+  </div>
+
+  <button id="submit-btn" onclick="submitBatch()">Start Batch</button>
+</div>
+
+<div id="status-msg"></div>
+
+<!-- Today's batches -->
+<div id="batches-section">
+  <h2>Today's Batches</h2>
+  <div id="batches-list"><p class="no-batches">Loading...</p></div>
+</div>
+
+<script>
+  // ── CONFIG ─────────────────────────────────────────────────
+  const SCRIPT_URL = 'YOUR_APPSCRIPT_DEPLOYED_URL';  // paste your /exec URL here
+
+  let activeBatchId = null;
+
+  // ── On load ────────────────────────────────────────────────
+  window.addEventListener('load', () => {
+    loadActiveBatch();
+    loadBatches();
+  });
+
+  // ── Load active batch ──────────────────────────────────────
+  async function loadActiveBatch() {
+    try {
+      const res  = await fetch(`${SCRIPT_URL}?action=active_batch`);
+      const data = await res.json();
+
+      if (data.success) {
+        const b = data.batch;
+        activeBatchId = b.batch_id;
+        document.getElementById('banner-farm').textContent = b.farm_name;
+        document.getElementById('banner-meta').textContent =
+          `${b.farmer_name} · ${b.vehicle_reg || 'No vehicle'} · ${b.gap_number || 'No GAP'}`;
+        document.getElementById('active-banner').style.display = 'block';
+      }
+    } catch (e) {
+      console.warn('Could not load active batch:', e);
+    }
+  }
+
+  // ── Load today's batch list ────────────────────────────────
+  async function loadBatches() {
+    const list = document.getElementById('batches-list');
+    try {
+      const res   = await fetch(`${SCRIPT_URL}?action=list_batches`);
+      const data  = await res.json();
+      const today = new Date().toISOString().split('T')[0];
+
+      const todayBatches = (data.batches || []).filter(b =>
+        b.created_at && b.created_at.startsWith(today)
+      ).reverse();
+
+      if (todayBatches.length === 0) {
+        list.innerHTML = '<p class="no-batches">No batches yet today</p>';
+        return;
+      }
+
+      list.innerHTML = todayBatches.map(b => `
+        <div class="batch-row">
+          <div class="batch-row-left">
+            <div class="row-farm">${b.farm_name}</div>
+            <div class="row-meta">${b.farmer_name} · ${b.vehicle_reg || '—'} · <span style="font-family:monospace;font-size:11px">${b.batch_id}</span></div>
+          </div>
+          <span class="status-pill ${b.status === 'OPEN' ? 'open' : 'closed'}">${b.status}</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      list.innerHTML = '<p class="no-batches">Could not load batches</p>';
+    }
+  }
+
+  // ── Submit new batch ───────────────────────────────────────
+  async function submitBatch() {
+    const farm    = document.getElementById('farm_name').value.trim();
+    const farmer  = document.getElementById('farmer_name').value.trim();
+    const gap     = document.getElementById('gap_number').value.trim();
+    const vehicle = document.getElementById('vehicle_reg').value.trim();
+
+    // Validate
+    let valid = true;
+    if (!farm) {
+      document.getElementById('err-farm').classList.add('show');
+      document.getElementById('farm_name').classList.add('error');
+      valid = false;
+    } else {
+      document.getElementById('err-farm').classList.remove('show');
+      document.getElementById('farm_name').classList.remove('error');
+    }
+    if (!farmer) {
+      document.getElementById('err-farmer').classList.add('show');
+      document.getElementById('farmer_name').classList.add('error');
+      valid = false;
+    } else {
+      document.getElementById('err-farmer').classList.remove('show');
+      document.getElementById('farmer_name').classList.remove('error');
+    }
+    if (!valid) return;
+
+    // Submit
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating batch...';
+
+    try {
+      const res  = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_batch',
+          farm_name: farm,
+          farmer_name: farmer,
+          gap_number: gap,
+          vehicle_reg: vehicle
+        })
+      });
+      const data = await res.json();
+
+      const msg = document.getElementById('status-msg');
+      if (data.success) {
+        msg.className = 'success';
+        msg.innerHTML = `✅ Batch started for <strong>${farm}</strong>
+          <div class="batch-id-display">${data.batch_id}</div>`;
+
+        // Clear form
+        ['farm_name','farmer_name','gap_number','vehicle_reg'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+
+        // Refresh
+        await loadActiveBatch();
+        await loadBatches();
+      } else {
+        msg.className = 'fail';
+        msg.textContent = '❌ Error: ' + (data.error || 'Unknown error');
+      }
+    } catch (e) {
+      const msg = document.getElementById('status-msg');
+      msg.className = 'fail';
+      msg.textContent = '❌ Network error — check your connection';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Start Batch';
+  }
+
+  // ── Close active batch ─────────────────────────────────────
+  async function closeBatch() {
+    if (!activeBatchId) return;
+    if (!confirm('Close the current batch? Workers will not be able to add more baskets to it.')) return;
+
+    try {
+      const res  = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'close_batch', batch_id: activeBatchId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('active-banner').style.display = 'none';
+        activeBatchId = null;
+        await loadBatches();
+      }
+    } catch (e) {
+      alert('Could not close batch — check your connection');
+    }
+  }
+</script>
+</body>
+</html>
